@@ -98,7 +98,7 @@ export interface CameraRef {
     animationDuration?: number,
   ) => void;
   flyTo: (centerCoordinate: Position, animationDuration?: number) => void;
-  moveTo: (centerCoordinate: Position, animationDuration?: number) => void;
+  moveTo: (centerCoordinate: Position, paddingConfig?: number | number[], animationDuration?: number) => void;
   zoomTo: (zoomLevel: number, animationDuration?: number) => void;
 }
 
@@ -496,10 +496,43 @@ export const Camera = memo(
 
       const _moveTo: CameraRef['moveTo'] = (
         _centerCoordinate,
+        paddingConfig = 0,
         _animationDuration = 0,
       ) => {
+        let _padding = {
+          paddingTop: 0,
+          paddingBottom: 0,
+          paddingLeft: 0,
+          paddingRight: 0,
+        };
+
+        if (typeof paddingConfig === 'object') {
+          if (paddingConfig.length === 2) {
+            _padding = {
+              paddingTop: paddingConfig[0],
+              paddingBottom: paddingConfig[0],
+              paddingLeft: paddingConfig[1],
+              paddingRight: paddingConfig[1],
+            };
+          } else if (paddingConfig.length === 4) {
+            _padding = {
+              paddingTop: paddingConfig[0],
+              paddingBottom: paddingConfig[2],
+              paddingLeft: paddingConfig[3],
+              paddingRight: paddingConfig[1],
+            };
+          }
+        } else if (typeof paddingConfig === 'number') {
+          _padding = {
+            paddingTop: paddingConfig,
+            paddingBottom: paddingConfig,
+            paddingLeft: paddingConfig,
+            paddingRight: paddingConfig,
+          };
+        }
         setCamera({
           type: 'CameraStop',
+          padding: _padding,
           centerCoordinate: _centerCoordinate,
           animationDuration: _animationDuration,
           animationMode: 'easeTo',
